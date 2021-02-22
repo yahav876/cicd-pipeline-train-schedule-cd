@@ -1,4 +1,4 @@
-
+ 
 pipeline {
     agent any
     stages {
@@ -14,11 +14,16 @@ pipeline {
                 branch 'master'
             }
             steps {
+                withCredentials([usernamePassword(credentialsId: 'webserver_login', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     sshPublisher(
                         failOnError: true,
                         continueOnError: false,
                         publishers: [
-                                configName: 'staging'
+                            sshPublisherDesc(
+                                configName: 'staging',
+                                sshCredentials: [
+                                    username: "$USERNAME",
+                                    encryptedPassphrase: "$USERPASS"
                                 ], 
                                 transfers: [
                                     sshTransfer(
@@ -29,10 +34,8 @@ pipeline {
                                     )
                                 ]
                             )
-                        
-                    
+                        ]
+                    )
                 }
             }
         }
-    }
-
